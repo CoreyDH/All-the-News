@@ -29,25 +29,29 @@ router.get('/articles', function (req, res) {
 // Scapper
 router.get("/scrape", function (req, res) {
 
+    // Pull from Hacker News
     request('https://news.ycombinator.com/', function (err, res, html) {
 
-        var $ = cheerio.load(html);
+        var $ = cheerio.load(html); // Cheerio!
 
+        // Find all current records
         Article.find({}, function (err, doc) {
             if (err) throw err;
 
+            // Iterate through articles
             $('.athing').each(function (i, el) {
                 var data = {};
 
+                // Scrapping data
                 data.title = $(this).find('.title > a').text();
                 data.link = $(this).find('.title > a').attr('href');
                 data.linkPrev = $(this).find('.title > .sitebit > a > span').text();
 
-                var entry = new Article(data);
-                var inDB = false;
+                var entry = new Article(data); // New Entry
+                var inDB = false; // Flag to check if article exists in database
 
                 if (doc.length > 0) {
-                    doc.forEach(function (value) {
+                    doc.forEach(function (value) { // Loop through database to find matching article titles
                         if (data.title === value.title) {
                             console.log('Already in DB!');
                             inDB = true;
@@ -55,7 +59,7 @@ router.get("/scrape", function (req, res) {
                     });
                 }
 
-                if (!inDB) {
+                if (!inDB) { // If there are no matches, save to database
                     entry.save(function (err, doc) {
                         if (err) throw err;
 
@@ -69,11 +73,7 @@ router.get("/scrape", function (req, res) {
         });
     });
 
-    if (req.params.render) {
-        res.redirect('/articles');
-    } else {
-        res.send('Bathroom is cleaned.');
-    }
+    res.redirect('/articles'); // return to home
 
 });
 
@@ -82,13 +82,13 @@ router.get("/articles/:id", function (req, res) {
 
     if (req.params.id) {
         Article
-            .findOne({ '_id': req.params.id })
-            .populate('note')
+            .findOne({ '_id': req.params.id }) // Match by id
+            .populate('note') // Populate with corresponding note
             .exec(function (err, doc) {
                 if (err) throw err;
 
                 console.log('GET Note', doc);
-                res.json(doc);
+                res.json(doc); // Return in JSON format
             });
     }
 
@@ -101,16 +101,16 @@ router.post("/articles/:id", function (req, res) {
     if (req.params.id) {
         var note = new Note(req.body);
 
-        note.save(function (err, doc) {
+        note.save(function (err, doc) { // Add Note
             if (err) throw err;
 
             Article
-                .findOneAndUpdate({ '_id': req.params.id }, { 'note': doc._id })
+                .findOneAndUpdate({ '_id': req.params.id }, { 'note': doc._id }) // Update ID from Article to link to new note
                 .exec(function (err, doc) {
                     if (err) throw err;
 
                     console.log('POST Note', doc);
-                    res.send(doc);
+                    res.json(doc); // Return article data
                 })
         });
     }
