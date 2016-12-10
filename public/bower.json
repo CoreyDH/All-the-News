@@ -1,0 +1,21 @@
+{
+  "name": "week18-scrapping",
+  "homepage": "https://github.com/CoreyDH/All-the-News",
+  "authors": [
+    "Corey H <rewer6@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "bootstrap": "^3.3.7"
+  }
+}
